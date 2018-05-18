@@ -16,6 +16,16 @@ using json = nlohmann::json;
 constexpr double pi() { return M_PI; }
 double deg2rad(double x) { return x * pi() / 180; }
 double rad2deg(double x) { return x * 180 / pi(); }
+/*
+size_t x_start = 0;
+size_t y_start = x_start + N;
+size_t psi_start = y_start + N;
+size_t v_start = psi_start + N;
+size_t cte_start = v_start + N;
+size_t epsi_start = cte_start + N;
+size_t delta_start = epsi_start + N;
+size_t a_start = delta_start + N - 1;
+ */
 
 // Checks if the SocketIO event has JSON data.
 // If there is data the JSON object in string format will be returned,
@@ -85,12 +95,70 @@ int main() {
         string event = j[0].get<string>();
         if (event == "telemetry") {
           // j[1] is the data JSON object
+            // The below waypoints are in the map's co-ordinate system
+            // They need to be transformed to the vehicle's co-ordinate system
+            // based on the current position and orientation of the vehicle
           vector<double> ptsx = j[1]["ptsx"];
           vector<double> ptsy = j[1]["ptsy"];
           double px = j[1]["x"];
           double py = j[1]["y"];
           double psi = j[1]["psi"];
           double v = j[1]["speed"];
+          double previous_a = j[1]["throttle"];
+          double previous_delta = j[1]["steering_angle"];
+            
+            //Display the waypoints/reference line
+            vector<double> next_x_vals;
+            vector<double> next_y_vals;
+            // Create an Eigen matrix to store the x and y waypoints
+            cout << "pts x size = " << ptsx.size() << endl;
+            auto vehicle_waypoints = Eigen::MatrixXd(2, ptsx.size());
+            //.. add (x,y) points to list here, points are in reference to the vehicle's coordinate system
+            // the points in the simulator are connected by a Yellow line
+            for(size_t i = 0; i < ptsx.size(); ++i){
+                // Convert pts from map co-ordinate system to vehicle co-ordinate system
+                vehicle_waypoints(0, i) = (ptsx[i] - px)*cos(psi) + (ptsy[i] - py)*sin(psi);
+                vehicle_waypoints(1, i) = (ptsy[i] - py)*cos(psi) - (ptsx[i] - px)*sin(psi);
+                next_x_vals.push_back(vehicle_waypoints(0, i));
+                next_y_vals.push_back(vehicle_waypoints(1, i));
+                // Great visualization of the transformation between map and vehicle co-ordinate frames
+                // at this link : https://discourse-cdn-sjc3.com/udacity/uploads/default/original/4X/3/0/f/30f3d149c4365d9c395ed6103ecf993038b3d318.png
+                
+            }
+
+          // Calculate the coefficient based on the order
+            int order = 3;
+            
+            Eigen::VectorXd pts_vecx = vehicle_waypoints.row(0);
+            Eigen::VectorXd pts_vecy = vehicle_waypoints.row(1);
+            auto coeffs = polyfit(pts_vecx, pts_vecy, order);
+            // y = ax^2 + bx + c;
+         
+         // Calculate the cross track and orientation errors
+            double cte = polyeval(coeffs, 0);
+            std::cout << "CTE = " << cte << std::endl;
+            double epsi = -atan(coeffs[1]);
+            std::cout << "EPSI = " << epsi << std::endl;
+          
+        // Incorporate latency, by predicting what the state will be after the delay
+            // We will provide that as the initial state to the mpc solver.
+            // In the frame of the vehicle px, py and psi are 0
+            // So use those values for incorporating latency;
+            double x, y, psi_n;
+            x = 0; y = 0; psi_n = 0;
+            // Incorporate latency
+            double dt = 0.1;
+            const double Lf = 2.67;
+            x += v * cos(psi_n) * dt;
+            y += v * sin(psi_n) * dt;
+            psi_n -= v * previous_delta / Lf * dt;
+            v = v + previous_a * dt;
+            cte += (v * sin(epsi) * dt);
+            epsi -= v * previous_delta / Lf * dt;
+
+        // Initialize the state to send to the MPC solver
+            Eigen::VectorXd state(6);
+            state << x, y, psi_n, v, cte, epsi;
 
           /*
           * TODO: Calculate steering angle and throttle using MPC.
@@ -98,31 +166,36 @@ int main() {
           * Both are in between [-1, 1].
           *
           */
+          auto vars = mpc.Solve(state, coeffs);
           double steer_value;
           double throttle_value;
-
+          steer_value = vars[0];
+          throttle_value = vars[1];
           json msgJson;
           // NOTE: Remember to divide by deg2rad(25) before you send the steering value back.
           // Otherwise the values will be in between [-deg2rad(25), deg2rad(25] instead of [-1, 1].
-          msgJson["steering_angle"] = steer_value;
+            steer_value = steer_value / deg2rad(25);
+          msgJson["steering_angle"] = -1 * steer_value;
           msgJson["throttle"] = throttle_value;
 
           //Display the MPC predicted trajectory 
-          vector<double> mpc_x_vals;
-          vector<double> mpc_y_vals;
-
+          //vector<double> mpc_x_vals;
+          //vector<double> mpc_y_vals;
+          /*size_t N = 25;
           //.. add (x,y) points to list here, points are in reference to the vehicle's coordinate system
           // the points in the simulator are connected by a Green line
+            for(size_t i = 1; i < N; ++i){
+                double mpc_x = vars[i+1];
+                double mpc_y = vars[i+N+1];
+                mpc_x_vals.push_back(mpc_x);
+                mpc_y_vals.push_back(mpc_y);
+            }
+           */
+          
 
-          msgJson["mpc_x"] = mpc_x_vals;
-          msgJson["mpc_y"] = mpc_y_vals;
+          msgJson["mpc_x"] = mpc.mpc_x_vals;
+          msgJson["mpc_y"] = mpc.mpc_y_vals;
 
-          //Display the waypoints/reference line
-          vector<double> next_x_vals;
-          vector<double> next_y_vals;
-
-          //.. add (x,y) points to list here, points are in reference to the vehicle's coordinate system
-          // the points in the simulator are connected by a Yellow line
 
           msgJson["next_x"] = next_x_vals;
           msgJson["next_y"] = next_y_vals;
