@@ -41,9 +41,9 @@ If the student preprocesses waypoints, the vehicle state, and/or actuators prior
 
 The waypoints provided from the simulator are transformed from the map co-ordinate system to the vehicle co-ordinate system using a transformation based on the current position and heading of the vehicle. The equations are:
 
-**vehicle_waypoints_x(i) = (ptsx(i) - px) * cos(psi) + (ptsy(i) - py) * sin(psi)
+**vehicle_waypoints_x(i) = (ptsx(i) - px) * cos(psi) + (ptsy(i) - py) * sin(psi)**
 
-**vehicle_waypoints_y(i) = (ptsy(i) - py) * cos(psi) - (ptsx(i) - px) * sin(psi)
+**vehicle_waypoints_y(i) = (ptsy(i) - py) * cos(psi) - (ptsx(i) - px) * sin(psi)**
 
 Where ptsx(i) is the current x waypoint in the map, ptsy(i) is the current y waypoint in the map. (px, py) is the position of the vehicle in the map. psi is the heading of the vehicle.
 
@@ -51,7 +51,7 @@ After this a third order polynomial is fitted to the transformed points and the 
 
 * **The student implements Model Predictive Control that handles a 100 millisecond latency. Student provides details on how they deal with latency.**
 
-I dealed with latency by predicting the state **latency_dt** time into the future using my kinematic model equations:
+I dealt with latency by predicting the state **latency_dt** time into the future using my kinematic model equations:
 
 
 **double dt = 0.1;**
