@@ -9,8 +9,19 @@ Self-Driving Car Engineer Nanodegree Program
 
 I use a global kinematic model to simulate the dynamics of the vehicle. For a given state and actuator inputs we can predict what the next state vector will be using the following equations:
 
-x_{t+1} = x_{t} + v_{t} * \cos(\varphi_{t}) * dt
-y_{t+1} = y_{t} + v_{t} * \sin(\varphi_{t}) * dt
+**x = x + v * cos(psi_n) * dt;
+y = y + v * sin(psi_n) * dt;
+psi = psi + v * delta / Lf * dt;
+v = v + a * dt;
+cte = cte + (v * sin(epsi) * dt);
+epsi = epis + v * delta / Lf * dt;**
+
+In the optimizer the dynamics are enforced via equality constraints by setting the above equations to zero.
+The state variables are **x, y, psi,v, cte and epsi**.
+The actuator inputs are **a** (the throttle) and **delta** (steering angle).
+
+* Student discusses the reasoning behind the chosen N (timestep length) and dt (elapsed duration between timesteps) values. Additionally the student details the previous values tried.
+
 
 ## Dependencies
 
