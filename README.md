@@ -75,7 +75,7 @@ I then provided this predicted state to the MPC solver as the current state. Thi
 * **No tire may leave the drivable portion of the track surface. The car may not pop up onto ledges or roll over any surfaces that would otherwise be considered unsafe (if humans were in the vehicle).
 The car can't go over the curb, but, driving on the lines before the curb is ok.**
 
-Here is a final video[https://drive.google.com/file/d/1KkwDFw7BzsDXkhTneA2GYm25Hav6TluX/view?usp=sharing] of my vehicle driving around the track.
+Here is a [final video](https://drive.google.com/file/d/1KkwDFw7BzsDXkhTneA2GYm25Hav6TluX/view?usp=sharing) of my vehicle driving around the track.
 
 
 
