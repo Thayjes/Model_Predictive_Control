@@ -3,6 +3,15 @@ Self-Driving Car Engineer Nanodegree Program
 
 ---
 
+## Rubric Points
+
+* Student describes their model in detail. This includes the state, actuators and update equations.
+
+I use a global kinematic model to simulate the dynamics of the vehicle. For a given state and actuator inputs we can predict what the next state vector will be using the following equations:
+
+x_{t+1} = x_{t} + v_{t} * \cos(\varphi_{t}) * dt
+y_{t+1} = y_{t} + v_{t} * \sin(\varphi_{t}) * dt
+
 ## Dependencies
 
 * cmake >= 3.5
