@@ -9,12 +9,17 @@ Self-Driving Car Engineer Nanodegree Program
 
 I use a global kinematic model to simulate the dynamics of the vehicle. For a given state and actuator inputs we can predict what the next state vector will be using the following equations:
 
-**x = x + v * cos(psi_n) * dt;
-y = y + v * sin(psi_n) * dt;
-psi = psi + v * delta / Lf * dt;
-v = v + a * dt;
-cte = cte + (v * sin(epsi) * dt);
-epsi = epis + v * delta / Lf * dt;**
+**x = x + v * cos(psi_n) * dt**
+
+**y = y + v * sin(psi_n) * dt**
+
+**psi = psi + v * delta / Lf * dt**
+
+**v = v + a * dt**
+
+**cte = cte + (v * sin(epsi) * dt)**
+
+**epsi = epis + v * delta / Lf * dt**
 
 In the optimizer the dynamics are enforced via equality constraints by setting the above equations to zero.
 The state variables are **x, y, psi,v, cte and epsi**.
