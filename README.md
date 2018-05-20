@@ -31,15 +31,15 @@ Selecting an appropriate N is very important. If we predict too far ahead, our p
 
 As rule of thumb
 
-* A smaller **dt** is good as we can produce a more continuous path. But the tradeoff is predicting a larger number of steps for a given N.
+A smaller **dt** is good as we can produce a more continuous path. But the tradeoff is predicting a larger number of steps for a given N.
 
-* A larger **N** is not always good as even though we can predict further ahead, it affects the computational load on the PC. So we need to be careful with this value as well.
+A larger **N** is not always good as even though we can predict further ahead, it affects the computational load on the PC. So we need to be careful with this value as well.
 
 
 * **A polynomial is fitted to waypoints.
 If the student preprocesses waypoints, the vehicle state, and/or actuators prior to the MPC procedure it is described.**
 
-The waypoint provided from the simulator are transformed from the map co-ordinate system to the vehicle co-ordinate system using a transformation based on the current position and heading of the vehicle. The equations are:
+The waypoints provided from the simulator are transformed from the map co-ordinate system to the vehicle co-ordinate system using a transformation based on the current position and heading of the vehicle. The equations are:
 
 **vehicle_waypoints_x(i) = (ptsx(i) - px) * cos(psi) + (ptsy(i) - py) * sin(psi)
 
@@ -48,6 +48,33 @@ The waypoint provided from the simulator are transformed from the map co-ordinat
 Where ptsx(i) is the current x waypoint in the map, ptsy(i) is the current y waypoint in the map. (px, py) is the position of the vehicle in the map. psi is the heading of the vehicle.
 
 After this a third order polynomial is fitted to the transformed points and the coefficients passed to the MPC solver.
+
+* **The student implements Model Predictive Control that handles a 100 millisecond latency. Student provides details on how they deal with latency.**
+
+I dealed with latency by predicting the state **latency_dt** time into the future using my kinematic model equations:
+
+
+**double dt = 0.1;**
+
+**const double Lf = 2.67;**
+
+**x += v * cos(psi_n) * dt;**
+
+**y += v * sin(psi_n) * dt;**
+
+**psi_n -= v * delta / Lf * dt;**
+
+**v = v + a * dt;**
+
+**cte += (v * sin(epsi) * dt);**
+
+**epsi -= v * delta / Lf * dt;**
+
+I then provided this predicted state to the MPC solver as the current state. This accounted for the time lag between the inputs.
+
+
+
+
 
 
 
