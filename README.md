@@ -25,7 +25,7 @@ In the optimizer the dynamics are enforced via equality constraints by setting t
 The state variables are **x, y, psi,v, cte and epsi**.
 The actuator inputs are **a** (the throttle) and **delta** (steering angle).
 
-* **Student discusses the reasoning behind the chosen N (timestep length) and dt (elapsed duration between timesteps) values. Additionally the student details the previous values tried.
+* **Student discusses the reasoning behind the chosen N (timestep length) and dt (elapsed duration between timesteps) values. Additionally the student details the previous values tried.**
 
 Selecting an appropriate N is very important. If we predict too far ahead, our predicted trajectory will be very different then the reference trajectory, due to an approximate model and changing environment. Initially I tried **N** value of 20 seconds and **dt** = 0.2 seconds. This did not work that well and the car did not stick to the track path. I noticed increasing **N** also made the computational load higher. I then tested with **N** = 10 and **dt** = 0.1 seconds. This caused the car to swerve a bit around the track and again not follow the path. I tuned the **dt** parameter a bit and found a **dt** = 0.15 seconds worked well. 
 
@@ -35,8 +35,9 @@ As rule of thumb
 
 * A larger **N** is not always good as even though we can predict further ahead, it affects the computational load on the PC. So we need to be careful with this value as well.
 
+
 * **A polynomial is fitted to waypoints.
-If the student preprocesses waypoints, the vehicle state, and/or actuators prior to the MPC procedure it is described.
+If the student preprocesses waypoints, the vehicle state, and/or actuators prior to the MPC procedure it is described.**
 
 The waypoint provided from the simulator are transformed from the map co-ordinate system to the vehicle co-ordinate system using a transformation based on the current position and heading of the vehicle. The equations are:
 
